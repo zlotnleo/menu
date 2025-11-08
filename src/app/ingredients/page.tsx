@@ -4,6 +4,17 @@ const ingredients = await prisma.ingredient.findMany({
     select: {
         id: true,
         menuName: true
+    },
+    where: {
+        cocktailIngredients: {
+            some: {
+                cocktail: {
+                    NOT: {
+                        menuSection: null
+                    }
+                }
+            }
+        }
     }
 });
 

@@ -21,6 +21,9 @@ model Cocktail {
   garnish             String?
   preparation         Preparation
   cocktailIngredients CocktailIngredient[]
+
+  menuSection   MenuSection? @relation(fields: [menuSectionId], references: [id])
+  menuSectionId Int?
 }
 
 model CocktailIngredient {
@@ -42,4 +45,10 @@ enum Preparation {
   DRY_SHAKE
   CHURN
   BUILD
+}
+
+model MenuSection {
+  id        Int        @id @default(autoincrement())
+  name      String
+  cocktails Cocktail[]
 }

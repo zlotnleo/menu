@@ -12,6 +12,11 @@ const cocktails = await prisma.cocktail.findMany({
                 order: 'asc'
             }
         }
+    },
+    where: {
+        NOT: {
+            menuSection: null
+        }
     }
 });
 
