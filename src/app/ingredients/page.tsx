@@ -1,13 +1,15 @@
-import {sql} from "@/db";
+import {prisma} from "@/prismaClient";
 
-const ingredients = await sql<{ id: number, name: string }>(`
-    SELECT ingredient.id, ingredient.menu_name as name
-    FROM ingredient
-`);
+const ingredients = await prisma.ingredient.findMany({
+    select: {
+        id: true,
+        menuName: true
+    }
+});
 
 export default function IngredientList() {
     return <ul>
         {ingredients.map(ingredient =>
-            <li key={ingredient.id}>{ingredient.name}</li>)}
+            <li key={ingredient.id}>{ingredient.menuName}</li>)}
     </ul>
 }

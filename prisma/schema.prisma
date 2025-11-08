@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:../db.sqlite"
+}
+
+model Ingredient {
+  id                  Int                  @id @default(autoincrement())
+  recipeName          String
+  menuName            String
+  cocktailIngredients CocktailIngredient[]
+}
+
+model Cocktail {
+  id                  Int                  @id @default(autoincrement())
+  name                String
+  garnish             String?
+  preparation         Preparation
+  cocktailIngredients CocktailIngredient[]
+}
+
+model CocktailIngredient {
+  cocktail   Cocktail @relation(fields: [cocktailId], references: [id])
+  cocktailId Int
+
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+  ingredientId Int
+
+  amount String
+  order  Int?
+
+  @@unique([cocktailId, ingredientId])
+}
+
+enum Preparation {
+  SHAKE
+  STIR
+  DRY_SHAKE
+  CHURN
+  BUILD
+}
