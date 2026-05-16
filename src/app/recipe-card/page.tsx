@@ -1,60 +1,30 @@
-import {Fragment} from "react";
 import {prisma} from "@/prismaClient";
-import {Preparation} from "@/generated/prisma/enums";
+import RecipeCardContent from "@/app/recipe-card/content";
 
-const cocktails = await prisma.cocktail.findMany({
+const getCocktails = () => prisma.cocktail.findMany({
     include: {
         cocktailIngredients: {
             include: {
                 ingredient: true
             },
-            orderBy: {
-                order: 'asc'
-            }
+            orderBy: {order: 'asc'}
         }
     },
     where: {
-        NOT: {
-            menuSection: null
-        }
+        menuSection: {isHidden: false}
     }
-});
+}).then(cocktails => cocktails.map(c => ({
+    ...c,
+    normalisedName: normaliseName(c.name)
+})));
 
-export default function Home() {
-    return (
-        <>
-            <h1>Recipes</h1>
-            <dl>
-            {cocktails.map((cocktail) =>
-                    cocktail && <Fragment key={cocktail.id}>
-                        <dt>{cocktail.name}</dt>
-                        <dd>
-                            <div>{formatPreparation(cocktail.preparation)}</div>
-                            <ul>
-                                {cocktail.cocktailIngredients.map(cocktailIngredient =>
-                                    <li key={cocktailIngredient.ingredient.id}>{cocktailIngredient.amount} {cocktailIngredient.ingredient.recipeName}</li>
-                                )}
-                            </ul>
-                            {cocktail.garnish && <div>Garnish: {cocktail.garnish}</div>}
-                        </dd>
-                    </Fragment>
-            )}
-            </dl>
-        </>
-    );
+export type RecipeCardCocktails = Awaited<ReturnType<typeof getCocktails>>;
+
+export default async function RecipeCard() {
+    const cocktails = await getCocktails();
+    return <RecipeCardContent cocktails={cocktails} />
 }
 
-const formatPreparation = (preparation: Preparation) => {
-    switch (preparation) {
-        case Preparation.SHAKE:
-            return 'Shake';
-        case Preparation.STIR:
-            return "Stir";
-        case Preparation.DRY_SHAKE:
-            return "Dry shake";
-        case Preparation.CHURN:
-            return "Churn";
-        case Preparation.BUILD:
-            return "Build";
-    }
+const normaliseName = (name: string): string => {
+    return name.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
 }

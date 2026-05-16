@@ -27,6 +27,7 @@ model Cocktail {
 }
 
 model CocktailIngredient {
+  id         Int      @id @default(autoincrement())
   cocktail   Cocktail @relation(fields: [cocktailId], references: [id])
   cocktailId Int
 
@@ -51,4 +52,6 @@ model MenuSection {
   id        Int        @id @default(autoincrement())
   name      String
   cocktails Cocktail[]
+  isHidden  Boolean    @default(false)
+  order     Int        @default(0)
 }

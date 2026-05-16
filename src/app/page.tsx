@@ -1,7 +1,7 @@
 import {Fragment} from "react";
 import {prisma} from "@/prismaClient";
 
-const sections = await prisma.menuSection.findMany({
+const getSections = () => prisma.menuSection.findMany({
     include: {
         cocktails: {
             include: {
@@ -9,22 +9,23 @@ const sections = await prisma.menuSection.findMany({
                     include: {
                         ingredient: true
                     },
-                    orderBy: {
-                        order: 'asc'
-                    }
+                    orderBy: {order: 'asc'}
                 }
             },
         }
-    }
+    },
+    where: { isHidden: false },
+    orderBy: {order: 'asc'}
 })
 
-export default function Home() {
+export default async function Home() {
+    const sections = await getSections();
     return (
         <>
             <h1>Menu</h1>
             {sections.map(section => section.cocktails.length > 0 && (
                 <Fragment key={section.id}>
-                    <h2>{section.name}</h2>
+                    {section.name && <h2>{section.name}</h2>}
                     <dl>
                         {section.cocktails.map((cocktail) =>
                             cocktail && <Fragment key={cocktail.id}>
